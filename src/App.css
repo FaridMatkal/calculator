@@ -13,7 +13,7 @@ body {
   grid-template-columns: repeat(4, 75px);
   grid-gap: 2px;
   background-color: #fff;
-  height: 400px;
+  min-height: 400px;
   width: 306px;
   padding: 5px;
   border-radius: 10px;
@@ -31,6 +31,10 @@ body {
   margin-bottom: 10px;
   background-color:  #212f3c;
   color: #fff;
+  height: auto;
+  overflow-wrap: break-word; /* Para permitir el salto de línea */
+  word-wrap: break-word;
+  white-space: pre-wrap; 
 }
 
 #clear {
@@ -68,3 +72,4 @@ button {
 #menos1 {
   background-color: #212f3c;
 }
+

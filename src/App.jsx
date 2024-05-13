@@ -6,8 +6,7 @@ import { evaluate } from 'mathjs';
 
 
 function Calculator () {
-    const [displayValue, setDisplayValue] = useState('');
-    
+    const [displayValue, setDisplayValue] = useState('0');
 
     // Functions numbers | Event click and keyPressed
     useEffect(() => {
@@ -17,12 +16,11 @@ function Calculator () {
       };
     }, []); 
 
-
     useEffect(() => {
       const handleEnter = (event) => {
           if (event.key === 'Enter') {
               calculatorNumber();
-          }
+          } 
       };
   
       document.addEventListener('keydown', handleEnter);
@@ -30,44 +28,101 @@ function Calculator () {
       return () => {
           document.removeEventListener('keydown', handleEnter);
       };
-  }, [displayValue]);
+    }, [displayValue]);
 
     const handleKeyDown = (event) => {
         const key = event.key;
 
-        if (/[0-9+\-\/.*=]/.test(key)) {
-          numberClick(key);
-        } else if ( key === 'Enter') {
-          
-        } else if ( key === 'Delete') {
+        if (key === 'Enter') {
+      
+        } else if (key === 'Delete') {
           clearNumber();
-        } else if ( key === 'Backspace') {
+        } else if (key === 'Backspace') {
           deleteNumber();
+        } else if (/[0-9+\-\/.*=]/.test(key)) {
+          numberClick(key);
         }
     };
 
+    // Functions
+
     const numberClick = (number) => {
-      setDisplayValue(prevValue => prevValue + number)
-   }
+
+        setDisplayValue(prevValue => {
+        const newValue = prevValue === '0' ? number : prevValue + number;
+        
+        if (/\.(\d*)\./.test(newValue)) {
+          return prevValue; 
+        } else {
+          return newValue;
+        }
+      }); 
+
+    };
 
     const deleteNumber = () => {
       setDisplayValue(prevValue => prevValue.slice(0, -1));
     }
 
     const clearNumber = () => {
-      setDisplayValue('');
+      setDisplayValue('0');
     }
 
     const calculatorNumber = () => {
-      const result = evaluate(displayValue);
-      setDisplayValue(result);
-    } 
+      const numberOperator = displayValue;
+      const regex = /[\+\-\*\/]{2,}/;
+      
+      function substractOperator (cadena) {
+        const operadores = ["+", "-", "*", "/", "%", "^"];
+        const operatorMenos = [];
 
+          for (let caracter of cadena) {
+            if (operadores.includes(caracter)) {
+                operatorMenos.push(caracter)
+            }
+          }
+
+          return operatorMenos;
+      }
+
+      const operatorTotal = substractOperator(numberOperator)
+      const comprobarMenos = operatorTotal[operatorTotal.length -1];
+      const comprobarMenossubs = comprobarMenos.endsWith('-')    
+
+      if (regex.test(numberOperator) && comprobarMenossubs === true) {
+        const result = evaluate(numberOperator);
+        setDisplayValue(result);
+      } else if (regex.test(numberOperator)){
+
+        function deleteOperators(cadena) {
+
+          const operators = /[+\-*\/]/g;
+          let numbers = cadena.split(operators); 
+          let lastOperator = cadena.match(operators);
+      
+          if (lastOperator && numbers.length > 1) {
+              let lastNumber = numbers.pop(); 
+              cadena = numbers.join('') + lastOperator.pop() + lastNumber; 
+          } else {
+              cadena = cadena;
+          }
+          return cadena;
+        }
+      
+      const oneOperator = deleteOperators(numberOperator);
+      const result = evaluate(oneOperator)
+      setDisplayValue(result)
+      
+      } else {
+        const result = evaluate(numberOperator);
+        setDisplayValue(result);
+      }
+    }
 
   return (
     <div id="container">
       
-      <input type="text" id="display" value={displayValue} readOnly/>
+      <input type="text" id="display" value={displayValue} readOnly disabled/>
       <input type="submit" value="AC" id="clear" onClick={clearNumber}/>
       <button id="menos1" onClick={deleteNumber}>
         <FontAwesomeIcon icon={faDeleteLeft} />
@@ -92,6 +147,5 @@ function Calculator () {
     </div>
   )
 }
-
 
 export default Calculator
